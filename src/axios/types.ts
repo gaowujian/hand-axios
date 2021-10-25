@@ -1,3 +1,4 @@
+import InterceptorManager from "./InterceptorManager";
 type Methods = "get" | "GET" | "post" | "POST";
 
 export interface AxiosRequestConfig {
@@ -10,6 +11,10 @@ export interface AxiosRequestConfig {
 }
 export interface AxiosInstance {
   <T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>>;
+  interceptors: {
+    request: InterceptorManager<AxiosRequestConfig>;
+    response: InterceptorManager<AxiosResponse>;
+  };
 }
 // 泛型T代表相应体的类型
 export interface AxiosResponse<T = any> {

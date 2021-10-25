@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import axios, { AxiosResponse } from "./axios";
+import axios, { AxiosResponse } from "axios";
 
 interface User {
   username: string;
@@ -11,9 +11,34 @@ const user: User = {
   age: 28,
 };
 
+axios.interceptors.request.use((config) => {
+  config.data.username += 1;
+  return config;
+});
+axios.interceptors.request.use((config) => {
+  config.data.username += 2;
+  return config;
+});
+axios.interceptors.request.use((config) => {
+  config.data.username += 3;
+  return config;
+});
+
+axios.interceptors.response.use((res) => {
+  (res.data as any).username += 1;
+  return res;
+});
+axios.interceptors.response.use((res) => {
+  (res.data as any).username += 2;
+  return res;
+});
+axios.interceptors.response.use((res) => {
+  (res.data as any).username += 3;
+  return res;
+});
 axios({
   method: "post",
-  url: "http://localhost:5050/timeout?timeout=3000",
+  url: "http://localhost:5050/",
   headers: {
     "content-type": "application/json",
   },
