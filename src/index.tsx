@@ -10,13 +10,15 @@ const user: User = {
   username: "tony",
   age: 28,
 };
-axios<User>({
+
+axios({
   method: "post",
-  url: "http://localhost:5050",
+  url: "http://localhost:5050/timeout?timeout=3000",
   headers: {
     "content-type": "application/json",
   },
   data: user,
+  timeout: 1000,
 })
   .then((res) => {
     console.log("res:", res);

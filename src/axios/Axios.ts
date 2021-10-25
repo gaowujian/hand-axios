@@ -11,7 +11,7 @@ class Axios {
   dispatchRequest<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return new Promise<AxiosResponse<T>>((resolve, reject) => {
       const request = new XMLHttpRequest();
-      let { method, url, params, headers, data } = config;
+      let { method, url, params, headers, data, timeout } = config;
       let paramsStr = "";
       if (params && typeof params === "object") {
         paramsStr = qs.stringify(params);
@@ -21,7 +21,7 @@ class Axios {
       // 默认认为服务器返回json格式数据,那么客户端的xhr设置成对应的返回类型就能自动解析
       request.responseType = "json";
       request.onreadystatechange = function (e: Event) {
-        if (request.readyState === 4) {
+        if (request.readyState === 4 && request.status !== 0) {
           if (request.status >= 200 && request.status <= 300) {
             let response: AxiosResponse<T> = {
               data: request.response ? request.response : request.responseText,
@@ -33,7 +33,8 @@ class Axios {
             };
             resolve(response);
           } else {
-            reject("fail");
+            // ! 异常状态码错误处理
+            reject(`Error: Request failed with error code ${request.status}`);
           }
         }
       };
@@ -47,6 +48,19 @@ class Axios {
       if (data) {
         body = JSON.stringify(data);
         console.log("body:", body);
+      }
+
+      // !断网错误处理
+      request.onerror = function () {
+        reject("net::ERR_INTERNET_DISCONNECTED");
+      };
+
+      // !超时处理
+      if (timeout) {
+        request.timeout = timeout;
+        request.ontimeout = function () {
+          reject(`Error: timeout of ${timeout} was exceed`);
+        };
       }
       request.send(body);
     });
