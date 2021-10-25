@@ -2,14 +2,13 @@ import { AxiosRequestConfig, AxiosResponse } from "./types";
 import qs from "qs";
 import parseHeaders from "parse-headers";
 
-export interface AxiosPromise<T = never> extends Promise<AxiosResponse<T>> {}
 class Axios {
   // T用来限制相应对象里的data类型,T的类型是User
-  request<T>(config: AxiosRequestConfig): AxiosPromise<T> {
+  request<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return this.dispatchRequest<T>(config);
   }
   // !定义一个派发请求的方法？？
-  dispatchRequest<T>(config: AxiosRequestConfig): AxiosPromise<T> {
+  dispatchRequest<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return new Promise<AxiosResponse<T>>((resolve, reject) => {
       const request = new XMLHttpRequest();
       let { method, url, params, headers, data } = config;

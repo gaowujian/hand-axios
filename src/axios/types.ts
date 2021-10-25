@@ -8,7 +8,7 @@ export interface AxiosRequestConfig {
   data?: Record<string, any>;
 }
 export interface AxiosInstance {
-  <T>(config: AxiosRequestConfig): Promise<T>;
+  <T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>>;
 }
 // 泛型T代表相应体的类型
 export interface AxiosResponse<T = any> {
