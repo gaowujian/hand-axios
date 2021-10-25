@@ -1,7 +1,7 @@
 import Axios from "./Axios";
 import { AxiosInstance } from "./types";
 
-function createInstance(config: any): AxiosInstance {
+function createInstance(): AxiosInstance {
   // 创建一个Axios类的对象
   const context = new Axios();
   // 导出的axios实例实际上是request方法
@@ -11,6 +11,6 @@ function createInstance(config: any): AxiosInstance {
   return instance as AxiosInstance;
 }
 
-const axios = createInstance({});
+const axios = createInstance();
 export default axios;
 export * from "./types";

@@ -4,6 +4,8 @@ export interface AxiosRequestConfig {
   method: Methods;
   url: string;
   params?: Record<string, any>;
+  headers?: Record<string, any>;
+  data?: Record<string, any>;
 }
 export interface AxiosInstance {
   <T>(config: AxiosRequestConfig): Promise<T>;
