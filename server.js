@@ -12,6 +12,10 @@ app.post("/", (req, res, next) => {
   console.log("req.body:", req.body);
   res.json(req.body);
 });
+app.post("/post", (req, res, next) => {
+  console.log("req.body:", req.body);
+  res.json(req.body);
+});
 
 app.post("/timeout", (req, res, next) => {
   setTimeout(() => {

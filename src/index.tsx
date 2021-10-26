@@ -18,7 +18,7 @@ axios.interceptors.request.use((config: any) => {
 axios.interceptors.request.use((config: any) => {
   // return new Promise((resolve, reject) => {
   //   setTimeout(() => {
-  //     config.data.username += "req2";
+  // config.headers.username += "req2";
   //     resolve(config);
   //   }, 2000);
   // });
@@ -46,18 +46,18 @@ axios({
   method: "post",
   url: "http://localhost:5050/",
   headers: {
-    "content-type": "application/json",
+    username: "tony",
   },
   data: user,
   timeout: 1000,
 })
   .then((res) => {
-    console.log("res:", res);
+    // console.log("res:", res);
     // ReactDOM.render(<React.StrictMode>{JSON.stringify(res)}</React.StrictMode>, document.getElementById("root"));
     return res.data;
   })
   .then((data) => {
-    console.log("data:", data);
+    // console.log('data:', data)
   })
   .catch((err) => {
     console.log("err:", err);

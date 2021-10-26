@@ -2,6 +2,7 @@ import { AxiosRequestConfig, AxiosResponse } from "./types";
 import qs from "qs";
 import parseHeaders from "parse-headers";
 import InterceptorManager, { Interceptor } from "./InterceptorManager";
+import { transform } from "typescript";
 
 let defaults: AxiosRequestConfig = {
   method: "get",
@@ -13,6 +14,15 @@ let defaults: AxiosRequestConfig = {
       accept: "application/json",
     },
   },
+  // 默认把所有请求体转json
+  transformRequest(data) {
+    return JSON.stringify(data);
+    // return data;
+  },
+  // 默认只返回data属性,默认不用开启,让用户去自定义
+  // transformResponse(res) {
+  //   return res.data;
+  // },
 };
 
 const getStyleMethods = ["get", "delete", "options", "head"];
@@ -37,15 +47,12 @@ class Axios<T> {
   };
   // T用来限制相应对象里的data类型,T的类型是User
   request(config: AxiosRequestConfig): Promise<AxiosRequestConfig | AxiosResponse<T>> {
-    // *合并默认配置和自定义配置
-    config.headers = {
-      ...this.defaults.headers,
-      ...config.headers,
-    };
+    // *合并默认配置和传入配置为最终配置
+    config.headers = { ...this.defaults.headers, ...config.headers };
+    config = { ...this.defaults, ...config };
 
-    // !在这个例子中，前三个是请求拦截器，每个拦截器有成功和回调失败，然后是真正的请求，然后是返回拦截器，每个拦截器也有成功和失败
+    // ! chain的类型错误
     const chain: any = [
-      // todo 有哪些不需要做的？？？
       {
         onFulfilled: this.dispatchRequest,
         // onRejected: (err) => err,
@@ -96,6 +103,13 @@ class Axios<T> {
               config,
               request,
             };
+
+            console.log("请求回来的数据", response);
+
+            // *如果有返回转换器需要转换结果
+            if (config.transformResponse) {
+              response = config.transformResponse(response);
+            }
             resolve(response);
           } else {
             // ! 异常状态码错误处理
@@ -104,7 +118,6 @@ class Axios<T> {
         }
       };
       // 如果是post请求数据，必须写明 content-type的请求头，否则后端无法解析
-      console.log("headers:", headers);
       if (headers) {
         for (const key in headers) {
           // 如果key是通用的默认配置，或者给指定请求方法添加默认配置，会先赋值再被自定义覆盖
@@ -119,10 +132,16 @@ class Axios<T> {
           }
         }
       }
-      let body: string | null = null;
+      let body = null;
       if (data) {
-        body = JSON.stringify(data);
-        console.log("body:", body);
+        body = data;
+        console.log("请求前的数据回来的数据", body);
+        // * 请求真正发送前转换数据类型
+        if (config.transformRequest) {
+          const result = config.transformRequest(config.data);
+          config.data = result;
+          body = result;
+        }
       }
 
       // !断网错误处理
@@ -137,6 +156,7 @@ class Axios<T> {
           reject(`Error: timeout of ${timeout} was exceed`);
         };
       }
+
       request.send(body);
     });
   }

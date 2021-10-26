@@ -8,6 +8,8 @@ export interface AxiosRequestConfig {
   headers?: Record<string, any>;
   data?: Record<string, any>;
   timeout?: number;
+  transformRequest?: (data: any) => any;
+  transformResponse?: (data: any) => any;
 }
 export interface AxiosInstance {
   <T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>>;
