@@ -52,6 +52,7 @@ class Axios<T> {
     config = { ...this.defaults, ...config };
 
     // ! chain的类型错误
+    // Array<Promise<AxiosRequestConfig | AxiosResponse<T>>>
     const chain: any = [
       {
         onFulfilled: this.dispatchRequest,
@@ -72,6 +73,7 @@ class Axios<T> {
       }
     });
     // 开始定义第一个promise, 需要断言
+    // Array<Promise<AxiosRequestConfig | AxiosResponse<T>>>
     let promise: any = Promise.resolve(config);
     while (chain.length > 0) {
       const { onFulfilled, onRejected } = chain.shift()!;
