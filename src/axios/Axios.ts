@@ -3,15 +3,46 @@ import qs from "qs";
 import parseHeaders from "parse-headers";
 import InterceptorManager, { Interceptor } from "./InterceptorManager";
 
+let defaults: AxiosRequestConfig = {
+  method: "get",
+  url: "http://localhost:80",
+  timeout: 0,
+  headers: {
+    common: {
+      //针对所有请求生效
+      accept: "application/json",
+    },
+  },
+};
+
+const getStyleMethods = ["get", "delete", "options", "head"];
+getStyleMethods.forEach((method: string) => {
+  defaults.headers![method] = {};
+});
+// post类型请求，默认请求体是json格式
+const postStyleMethods = ["put", "post", "patch"];
+postStyleMethods.forEach((method: string) => {
+  defaults.headers![method] = {
+    "content-type": "application/json",
+  };
+});
+
+const allMethods = [...getStyleMethods, ...postStyleMethods];
+
 class Axios<T> {
+  public defaults: AxiosRequestConfig = defaults;
   public interceptors = {
     request: new InterceptorManager<AxiosRequestConfig>(),
     response: new InterceptorManager<AxiosResponse<T>>(),
   };
   // T用来限制相应对象里的data类型,T的类型是User
   request(config: AxiosRequestConfig): Promise<AxiosRequestConfig | AxiosResponse<T>> {
-    // Promise<AxiosResponse<T>>
-    // return this.dispatchRequest<T>(config);
+    // *合并默认配置和自定义配置
+    config.headers = {
+      ...this.defaults.headers,
+      ...config.headers,
+    };
+
     // !在这个例子中，前三个是请求拦截器，每个拦截器有成功和回调失败，然后是真正的请求，然后是返回拦截器，每个拦截器也有成功和失败
     const chain: any = [
       // todo 有哪些不需要做的？？？
@@ -73,9 +104,19 @@ class Axios<T> {
         }
       };
       // 如果是post请求数据，必须写明 content-type的请求头，否则后端无法解析
+      console.log("headers:", headers);
       if (headers) {
         for (const key in headers) {
-          request.setRequestHeader(key, headers[key]);
+          // 如果key是通用的默认配置，或者给指定请求方法添加默认配置，会先赋值再被自定义覆盖
+          if (key === "common" || key === config.method) {
+            for (const subKey in headers[key]) {
+              request.setRequestHeader(subKey, headers[key][subKey]);
+            }
+          } else {
+            if (!allMethods.includes(key)) {
+              request.setRequestHeader(key, headers[key]);
+            }
+          }
         }
       }
       let body: string | null = null;

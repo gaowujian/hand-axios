@@ -16,6 +16,12 @@ axios.interceptors.request.use((config: any) => {
   return config;
 });
 axios.interceptors.request.use((config: any) => {
+  // return new Promise((resolve, reject) => {
+  //   setTimeout(() => {
+  //     config.data.username += "req2";
+  //     resolve(config);
+  //   }, 2000);
+  // });
   config.data.username += "req2";
   return config;
 });
