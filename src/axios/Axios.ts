@@ -9,17 +9,18 @@ class Axios<T> {
     response: new InterceptorManager<AxiosResponse<T>>(),
   };
   // T用来限制相应对象里的data类型,T的类型是User
-  request(config: AxiosRequestConfig): any {
+  request(config: AxiosRequestConfig): Promise<AxiosRequestConfig | AxiosResponse<T>> {
     // Promise<AxiosResponse<T>>
     // return this.dispatchRequest<T>(config);
     // !在这个例子中，前三个是请求拦截器，每个拦截器有成功和回调失败，然后是真正的请求，然后是返回拦截器，每个拦截器也有成功和失败
-    const chain: Array<Interceptor<AxiosRequestConfig> | Interceptor<AxiosResponse<T>>> = [
-      // todo
+    const chain: any = [
+      // todo 有哪些不需要做的？？？
       {
-        onFulfilled: this.dispatchRequest as any,
-        onRejected: (err) => err,
+        onFulfilled: this.dispatchRequest,
+        // onRejected: (err) => err,
       },
     ];
+
     // 把请求拦截器和相应拦截器排序好弄成一个数组，等之后promise进行连接
     // [req3,req2,req1,real request,res1,res3,res3]
     this.interceptors.request.interceptors.forEach((interceptor) => {
@@ -32,12 +33,13 @@ class Axios<T> {
         chain.push(interceptor);
       }
     });
-    // 开始定义第一个promise
-    let promise: Promise<Interceptor<AxiosRequestConfig> | Interceptor<AxiosResponse<T>>> = Promise.resolve(config);
+    // 开始定义第一个promise, 需要断言
+    let promise: any = Promise.resolve(config);
     while (chain.length > 0) {
       const { onFulfilled, onRejected } = chain.shift()!;
       promise = promise.then(onFulfilled, onRejected);
     }
+    return promise;
   }
   // !定义一个派发请求的方法？？
   dispatchRequest<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
@@ -76,7 +78,7 @@ class Axios<T> {
           request.setRequestHeader(key, headers[key]);
         }
       }
-      let body;
+      let body: string | null = null;
       if (data) {
         body = JSON.stringify(data);
         console.log("body:", body);

@@ -1,6 +1,6 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import axios, { AxiosResponse } from "axios";
+// import React from "react";
+// import ReactDOM from "react-dom";
+import axios, { AxiosResponse } from "./axios";
 
 interface User {
   username: string;
@@ -11,29 +11,29 @@ const user: User = {
   age: 28,
 };
 
-axios.interceptors.request.use((config) => {
-  config.data.username += 1;
+axios.interceptors.request.use((config: any) => {
+  config.data.username += "req1";
   return config;
 });
-axios.interceptors.request.use((config) => {
-  config.data.username += 2;
+axios.interceptors.request.use((config: any) => {
+  config.data.username += "req2";
   return config;
 });
-axios.interceptors.request.use((config) => {
-  config.data.username += 3;
+axios.interceptors.request.use((config: any) => {
+  config.data.username += "req3";
   return config;
 });
 
-axios.interceptors.response.use((res) => {
-  (res.data as any).username += 1;
+axios.interceptors.response.use((res: any) => {
+  res.data.username += "res1";
   return res;
 });
-axios.interceptors.response.use((res) => {
-  (res.data as any).username += 2;
+axios.interceptors.response.use((res: any) => {
+  res.data.username += "res2";
   return res;
 });
-axios.interceptors.response.use((res) => {
-  (res.data as any).username += 3;
+axios.interceptors.response.use((res: any) => {
+  res.data.username += "res3";
   return res;
 });
 axios({
